@@ -1,39 +1,86 @@
 # %%
+# Imports and Configurations
 import requests
 import pandas as pd
-import json
 
-# 1. Configuração 
+# Market Data Settings
 coins_list = ["USD-BRL", "EUR-BRL", "BTC-BRL"]
-coins_query = ",".join(coins_list) # Transforma em "USD-BRL,EUR-BRL,BTC-BRL"
-url = f"https://economia.awesomeapi.com.br/last/{coins_query}"
+query = ",".join(coins_list)
+URL = f"https://economia.awesomeapi.com.br/last/{query}"
 
-# 2. Extração com tratamento de erro
+# Tax and Profit
+import_tax = 0.60    # 60%
+profit_margin = 0.20 # 20%
+
+# Data Extraction
 try:
-    resposta = requests.get(url)
-    resposta.raise_for_status() # Lança erro se o status não for 200
-    dados_brutos = resposta.json()
+    response = requests.get(URL)
+    response.raise_for_status() # Check if the request was successful
+    raw_data = response.json()
 except Exception as e:
-    print(f"Erro na extração: {e}")
-    dados_brutos = {}
+    print(f" Critical Error during extraction: {e}")
+    raw_data = {}
 
-# 3. Transformação 
-if dados_brutos:
-    # Valores em lista
-    lista_formatada = list(dados_brutos.values())
+# Processing and Intelligence Pipeline
+if raw_data:
+    # Transformation
+    formatted_list = list(raw_data.values())
+    df = pd.DataFrame(formatted_list)
     
-    df = pd.DataFrame(lista_formatada)
-
-    # Selecionando apenas o que importa
+    # Data Cleaning and Column Selection
     df = df[['code', 'codein', 'bid', 'pctChange', 'create_date']]
+    df.columns = ['Currency', 'Base', 'Current_Price', 'Pct_Change', 'Query_Date']
     
-    # Renomeando 
-    df.columns = ['Moeda', 'Base', 'Preco_Atual', 'Variacao_Pct', 'Data_Consulta']
+    # Loading (Historical Record)
+    df.to_csv("market_price.csv", sep=";", index=False, encoding='utf-8')
+    print("✅ Market data updated and saved to 'market_price.csv'.")
+
+    # Price Mapping
+    # Dictionary to store the latest prices for easy access
+    live_prices = {
+        "USD": float(df.loc[df['Currency'] == 'USD', 'Current_Price'].values[0]),
+        "EUR": float(df.loc[df['Currency'] == 'EUR', 'Current_Price'].values[0]),
+        "BTC": float(df.loc[df['Currency'] == 'BTC', 'Current_Price'].values[0])
+    }
+
+    # Business Logic Function
+    def final_selling_price(exchange_rate, product_cost, tax, margin):
+        """
+        Calculates the final selling price considering conversion, taxes, and profit.
+        """
+        converted_cost = exchange_rate * product_cost
+        # Applying percentage-based increase
+        return converted_cost * (1 + tax + margin)
+
+    # User Interaction Loop
+    print(f"Moedas disponíveis: {list(live_prices.keys())}")
     
-    # 4. Carga
-    df.to_csv("precos_mercado.csv", sep=";", index=False, encoding='utf-8')
-    print("Pipeline finalizado!")
+    user_choice = input("Escolha uma das moedas disponíveis (USD/EUR/BTC): ").upper()
     
-    print(df.head())
+    if user_choice in live_prices:
+        try:
+            cost_input = input(f"Insira o valor do produto em {user_choice}: ")
+            product_value = float(cost_input)
+            
+            final_price = final_selling_price(
+                live_prices[user_choice], 
+                product_value, 
+                import_tax, 
+                profit_margin
+            )
+            
+            print(f"\nResultado:")
+            print(f"Valor {user_choice} atual: R$ {live_prices[user_choice]:.2f}")
+            print(f"Melhor preço para venda: R$ {final_price:.2f}")
+            
+        except ValueError:
+            print("Error: Por favor insira um valor válido!")
+    else:
+        print(f"Esta moeda '{user_choice}' não é suportada pelo sistema!")
+
+else:
+    print("Ocorreu um erro no sistema devido a API")
+
+
 
 # %%
