@@ -8,9 +8,8 @@ coins_list = ["USD-BRL", "EUR-BRL", "BTC-BRL"]
 query = ",".join(coins_list)
 URL = f"https://economia.awesomeapi.com.br/last/{query}"
 
-# Tax and Profit
+# Tax
 import_tax = 0.60    # 60%
-profit_margin = 0.20 # 20%
 
 # Data Extraction
 try:
@@ -50,9 +49,13 @@ if raw_data:
         """
         converted_cost = exchange_rate * product_cost
         # Applying percentage-based increase
-        return converted_cost * (1 + tax + margin)
+        return converted_cost * (1 + tax + (margin/100))
 
     # User Interaction Loop
+
+    profit_value = input(f"Insira sua margem de lucro: ")
+    profit_margin = float(profit_value)
+
     print(f"Moedas disponíveis: {list(live_prices.keys())}")
     
     user_choice = input("Escolha uma das moedas disponíveis (USD/EUR/BTC): ").upper()
@@ -71,8 +74,11 @@ if raw_data:
             
             print(f"\nResultado:")
             print(f"Valor {user_choice} atual: R$ {live_prices[user_choice]:.2f}")
+            print(f"Taxa aplicada: 60.00%")
+            print(f"Margem de lucro: {profit_margin:.2f}%")
+            print(f"Custo do produto em {user_choice}: {product_value:.2f}")
             print(f"Melhor preço para venda: R$ {final_price:.2f}")
-            
+
         except ValueError:
             print("Error: Por favor insira um valor válido!")
     else:
@@ -80,7 +86,3 @@ if raw_data:
 
 else:
     print("Ocorreu um erro no sistema devido a API")
-
-
-
-# %%
