@@ -2,6 +2,7 @@
 # Imports and Configurations
 import requests
 import pandas as pd
+import os
 
 # Market Data Settings
 coins_list = ["USD-BRL", "EUR-BRL", "BTC-BRL"]
@@ -31,8 +32,19 @@ if raw_data:
     df.columns = ['Currency', 'Base', 'Current_Price', 'Pct_Change', 'Query_Date']
     
     # Loading (Historical Record)
-    df.to_csv("market_price.csv", sep=";", index=False, encoding='utf-8')
-    print("✅ Market data updated and saved to 'market_price.csv'.")
+    file_exists = os.path.isfile("market_price.csv")
+    
+    df.to_csv("market_price.csv", 
+              mode='a',           # 'a' de append: adiciona ao final do arquivo
+              sep=";", 
+              index=False, 
+              header=not file_exists, # Só coloca o cabeçalho se o arquivo NÃO existir
+              encoding='utf-8')
+    
+    # 2. JSON (sobrescreve com o dado mais recente)
+    df.to_json("market_status.json", orient="records", indent=4)
+    
+    print("Histórico atualizado no CSV e Status salvo no JSON!")
 
     # Price Mapping
     # Dictionary to store the latest prices for easy access
@@ -77,7 +89,7 @@ if raw_data:
             print(f"Taxa aplicada: 60.00%")
             print(f"Margem de lucro: {profit_margin:.2f}%")
             print(f"Custo do produto em {user_choice}: {product_value:.2f}")
-            print(f"Melhor preço para venda: R$ {final_price:.2f}")
+            print(f"Melhor preço para venda em BRL: {final_price:.2f}")
 
         except ValueError:
             print("Error: Por favor insira um valor válido!")
@@ -86,3 +98,5 @@ if raw_data:
 
 else:
     print("Ocorreu um erro no sistema devido a API")
+
+# %%
