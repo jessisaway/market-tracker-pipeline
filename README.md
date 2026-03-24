@@ -1,55 +1,46 @@
-# 🛡️ Market Tracker Pipeline
+# 🛡️ Market Tracker Pipeline & Dashboard
 
-> **Automated Asset Monitoring & Data Engineering Pipeline**
+> **Automated Data Engineering Pipeline & Real-time Business Intelligence**
 
-Este projeto é um pipeline de dados desenvolvido em Python focado em **Inteligência de Mercado**. O objetivo é rastrear preços de ativos em tempo real via API, comparar com metas estratégicas de uma empresa e disparar alertas automáticos para tomada de decisão.
+Este projeto é uma solução de **Engenharia de Dados** desenvolvida em Python. Ele automatiza o ciclo de vida do dado: desde a ingestão via API REST até a visualização em um Dashboard interativo, focado em suporte à decisão para operações de importação e câmbio.
 
-## Sumário
-- [Tecnologias](#-tecnologias)
-- [O Problema de Negócio](#-o-problema-de-negócio)
-- [Arquitetura do Pipeline](#-arquitetura-do-pipeline)
-- [Funcionalidades](#-funcionalidades)
-- [Como Executar](#-como-executar)
-- [Licença](#-licença)
-
----
-
-## Tecnologias
-- **Python**: Linguagem principal para lógica e automação.
-- **Requests**: Ingestão de dados via APIs REST (Coinbase).
-- **JSON/CSV**: Manipulação de diferentes formatos de arquivos para integração de dados.
-- **Git/GitHub**: Controle de versão e documentação.
+## Tecnologias e Ferramentas
+- **Python**: Core da aplicação e lógica de negócios.
+- **Pandas**: Processamento, limpeza e pivotagem de dados (Time Series).
+- **Streamlit**: Interface de usuário (Dashboard) de alta performance.
+- **Requests**: Ingestão de dados em tempo real (AwesomeAPI).
+- **GitHub Actions**: Orquestração e automação de jobs na nuvem (CI/CD).
+- **JSON/CSV**: Estruturas de persistência para estado atual e histórico.
 
 ---
 
 ## O Problema de Negócio
-Empresas de investimento e varejo precisam reagir rapidamente às mudanças de preço do mercado. A coleta manual de dados é lenta e suscetível a erros. O **Market Tracker** resolve isso automatizando a vigilância de preços, garantindo que o time de operações receba um alerta no momento exato em que um ativo atinge o valor alvo (target price).
+Empresas que dependem de importação sofrem com a volatilidade do câmbio (USD, EUR, BTC). O **Market Tracker** resolve a latência na tomada de decisão ao:
+1.  **Monitorar** ativos 24/7 sem intervenção humana.
+2.  **Comparar** preços de mercado com metas corporativas predefinidas.
+3.  **Simular** preços de venda final considerando impostos (60%) e margens de lucro dinâmicas.
 
 ---
 
-## Arquitetura do Pipeline
-O projeto segue o fluxo fundamental de Engenharia de Dados:
+## Arquitetura do Sistema
+O projeto é dividido em quatro camadas principais:
 
-1. **Ingestão (Extract):** Coleta de preços em tempo real da API da Coinbase e leitura de metas de negócio em arquivos locais.
-2. **Transformação (Transform):** - Limpeza de dados nulos e tratamento de erros de leitura.
-    - Normalização para duas casas decimais.
-    - Cálculo de diferença entre preço real e meta corporativa.
-3. **Carga/Alerta (Load):** - Exportação dos dados processados para um relatório final em JSON.
-    - Disparo de logs de alerta baseados em regras de negócio (Price Watch).
-
----
-
-## Funcionalidades
-- **Monitoramento Multiativos:** Rastreamento de Bitcoin (BTC), Ethereum (ETH) e ativos financeiros.
-- **Priorização de Alertas:** Lógica integrada para classificar ativos por nível de prioridade (Alta, Média, Baixa).
-- **Relatório de Diferença:** Cálculo automático do spread entre valor de mercado e valor alvo.
-- **Persistência de Dados:** Geração de arquivos de saída para auditoria e histórico de execuções.
+1.  **Ingestão (Extract):** O `main.py` consome a AwesomeAPI e carrega configurações de metas via `business_config.json`.
+2.  **Processamento (Transform):** Normalização de decimais, cálculo de *spread* (diferença para a meta) e tratamento de erros de conexão.
+3.  **Armazenamento (Load):** - `market_status.json`: Estado atual para leitura rápida do Dashboard.
+    - `market_price.csv`: Histórico cumulativo para análise de tendência.
+4.  **Entrega (Serve):** Dashboard interativo (`app.py`) com gráficos de volatilidade e calculadora de conversão.
 
 ---
 
-## Licença
-**MIT License**
+## Automação (CI/CD)
+Este repositório utiliza **GitHub Actions** para garantir a atualização autônoma dos dados.
+- **Frequência:** O pipeline é executado automaticamente a cada 60 minutos via Cron Job.
+- **Persistência:** Os novos preços são commitados e versionados automaticamente no histórico (`market_price.csv`) pelo próprio GitHub.
 
-Copyright (c) 2026 Jéssica Cristina de Rezende
+---
 
-Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+## Funcionalidades do Dashboard
+- **Cards de Cotação:** Visualização imediata com indicadores de "🚨 HORA DE COMPRAR" ou "✅ AGUARDAR".
+- **Tendência Individual:** Gráficos de linha independentes para cada ativo, permitindo análise de volatilidade sem distorção de escala.
+- **Calculadora de Importação:** Interface para simular custos de produtos, aplicando automaticamente a cotação do momento, impostos e lucro desejado.
