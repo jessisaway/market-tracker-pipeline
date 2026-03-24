@@ -44,3 +44,26 @@ Este repositório utiliza **GitHub Actions** para garantir a atualização autô
 - **Cards de Cotação:** Visualização imediata com indicadores de "🚨 HORA DE COMPRAR" ou "✅ AGUARDAR".
 - **Tendência Individual:** Gráficos de linha independentes para cada ativo, permitindo análise de volatilidade sem distorção de escala.
 - **Calculadora de Importação:** Interface para simular custos de produtos, aplicando automaticamente a cotação do momento, impostos e lucro desejado.
+  
+---
+
+## Como Executar
+
+### Preparação do Ambiente
+Instale as bibliotecas necessárias:
+pip install requests pandas streamlit
+
+### Iniciar o Dashboard
+Para visualizar os dados e usar a calculadora:
+streamlit run app.py
+
+### Execução Manual do Pipeline
+Caso deseje forçar uma atualização dos dados fora do agendamento automático do GitHub:
+python main.py
+
+---
+
+### Licença
+Distribuído sob a licença MIT. Veja LICENSE para mais informações.
+
+Copyright (c) 2026 Jéssica Cristina de Rezende
