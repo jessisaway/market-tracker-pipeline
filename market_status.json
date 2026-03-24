@@ -1,0 +1,23 @@
+[
+    {
+        "Currency":"USD",
+        "Price":5.234,
+        "Timestamp":"2026-03-24 18:21:20",
+        "Target":4.95,
+        "Difference":0.28
+    },
+    {
+        "Currency":"EUR",
+        "Price":6.06796,
+        "Timestamp":"2026-03-24 18:20:48",
+        "Target":5.4,
+        "Difference":0.67
+    },
+    {
+        "Currency":"BTC",
+        "Price":366598.0,
+        "Timestamp":"2026-03-24 18:21:22",
+        "Target":380000.0,
+        "Difference":-13402.0
+    }
+]
