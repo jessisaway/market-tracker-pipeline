@@ -3,20 +3,26 @@ import requests
 import pandas as pd
 import json
 import os
+import time
 
 # Market Data Settings
 coins_list = ["USD-BRL", "EUR-BRL", "BTC-BRL"]
 query = ",".join(coins_list)
 url = f"https://economia.awesomeapi.com.br/last/{query}"
+headers = {"User-Agent": "market-tracker-pipeline/1.0"}
 
 # Data Extraction
-try:
-    response = requests.get(url)
-    response.raise_for_status() # Check if the request was successful
-    raw_data = response.json()
-except Exception as e:
-    print(f" Erro durante a extração: {e}")
-    raw_data = {}
+raw_data = {}
+for attempt in range(3):
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        raw_data = response.json()
+        break
+    except Exception as e:
+        print(f"Tentativa {attempt + 1} falhou: {e}")
+        if attempt < 2:
+            time.sleep(10)
 
 # Processing and Intelligence Pipeline
 if raw_data:
@@ -48,10 +54,10 @@ if raw_data:
     file_exists = os.path.isfile("market_price.csv")
 
     df.to_csv("market_price.csv",
-              mode='a',           # 'a' for append: adds to the end of the file
+              mode='a',
               sep=";",
               index=False,
-              header=not file_exists, # only add the header if the file does NOT exist
+              header=not file_exists,
               encoding='utf-8')
 
     # JSON (overwrite with the most recent data)
@@ -59,4 +65,4 @@ if raw_data:
 
     print(f"✅ Pipeline executado com sucesso! Dados atualizados em: {df['Timestamp'].iloc[0]}")
 else:
-    print("❌ Falha na extração de dados.")
+    print("❌ Falha na extração de dados após 3 tentativas.")
